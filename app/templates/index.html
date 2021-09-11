@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+    <input hidden type="file" id="hidden_file_input">
+    <p>Upload a floor plan image file for auto analysis</p>
+
+    <button type="button" id="watchlist_edit_attach_div">Select File</button>
+    <p id="watchlist_edit_attached_file_div">&nbsp;</p>
+    <button type="button" id="watchlist_edit_send_div">Go!</button>
+
+    <div style="display:none;" id="result_div">
+        <div>
+            <p>Floor Plan</p>
+            <img id="floorplan_img" src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA
+              AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
+                  9TXL0Y4OHwAAAABJRU5ErkJggg==" />
+        </div>
+
+        <div style="display: flex;">
+            <div>
+                <p>Rooms and Walls</p>
+                <img id="rooms_img" src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA
+                  AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
+                      9TXL0Y4OHwAAAABJRU5ErkJggg==" />
+            </div>
+            <div>
+                <p>Spots of Interests</p>
+                <img id="icons_img" src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA
+                  AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
+                      9TXL0Y4OHwAAAABJRU5ErkJggg==" />
+            </div>
+        </div>
+
+        <p>3D Model</p>
+        <div id="generation_3d"></div>
+    </div>
+
+    <script src="/static/js/three.js" type="text/javascript"></script>
+    <script src="/static/js/OBJLoader.js" type="text/javascript"></script>
+    <script src="/static/js/OrbitControls.js" type="text/javascript"></script>
+
+    <script>
+        const hidden_file_input_div = document.getElementById("hidden_file_input");
+        const watchlist_edit_attached_file_div = document.getElementById("watchlist_edit_attached_file_div");
+        const watchlist_edit_attach_div = document.getElementById("watchlist_edit_attach_div");
+        const watchlist_edit_send_div = document.getElementById("watchlist_edit_send_div");
+
+        const result_div = document.getElementById("result_div");
+        const floorplan_img = document.getElementById("floorplan_img");
+        const rooms_img = document.getElementById("rooms_img");
+        const icons_img = document.getElementById("icons_img");
+
+        var last_watchlist_edit_add_request = undefined;
+
+        var last_selected_file = undefined;
+
+        var g3d_node = document.getElementById("generation_3d");
+        var renderer_width = 700;
+        var renderer_height = 700;
+        const renderer = new THREE.WebGLRenderer({ antialiase: false });
+        renderer.setSize(renderer_width, renderer_height);
+        g3d_node.appendChild(renderer.domElement);
+        const loader = new OBJLoader();
+
+        //hook up listeners
+        hidden_file_input_div.onchange = e => {
+            var selected_file = e.target.files[0];
+            if (selected_file) {
+                last_selected_file = selected_file;
+                console.log(last_selected_file.name);
+                watchlist_edit_attached_file_div.textContent = last_selected_file.name;
+            }
+        }
+
+        function sendEditWatchlistUpdate() {
+            if (last_watchlist_edit_add_request !== undefined) {
+                alert("Please wait for the last processing to finish");
+                return;
+            }
+            if (!last_selected_file) {
+                alert("You must select a floorplan image file");
+                return;
+            }
+            if (last_selected_file && last_selected_file.size > 20 * 1024 * 1024) {
+                alert("Image file must not exceed 20MB");
+                return;
+            }
+
+            var file_ext = last_selected_file.name.toLowerCase().split('.').pop();
+            if (file_ext === 'jpeg') file_ext = 'jpg';
+            if (file_ext !== 'jpg' && file_ext !== 'png') {
+                alert("Only JPG or PNG files are accepted");
+                return;
+            }
+            watchlist_edit_send_div.textContent = "Processing..."
+            result_div.style.display = "none";
+
+            var formData = new FormData();
+            formData.append("file", last_selected_file);
+
+            last_watchlist_edit_add_request = new XMLHttpRequest();
+            last_watchlist_edit_add_request.onreadystatechange = function () {
+                if (last_watchlist_edit_add_request.readyState == 4) {
+
+                    if (last_watchlist_edit_add_request.status == 200) {
+                        var jsonResponse = JSON.parse(last_watchlist_edit_add_request.responseText);
+                        console.log(jsonResponse);
+                        if (jsonResponse.error) {
+                            alert(jsonResponse.error);
+                        }
+                        else {
+                            floorplan_img.setAttribute("src", "data:image/png;base64, " + jsonResponse.floorplan_png);
+                            rooms_img.setAttribute("src", "data:image/png;base64, " + jsonResponse.rooms_png);
+                            icons_img.setAttribute("src", "data:image/png;base64, " + jsonResponse.icons_png);
+
+                            var myObj = loader.parse(jsonResponse.mesh_obj);
+                            var bbox = new THREE.Box3().setFromObject(myObj);
+                            console.log("bbox: " + bbox);
+                            var cogx = (bbox.min.x + bbox.max.x) / 2;
+                            var cogy = (bbox.min.y + bbox.max.y) / 2;
+                            var cogz = (bbox.min.z + bbox.max.z) / 2;
+                            var radius = Math.max((bbox.max.x - bbox.min.x) / 2, (bbox.max.y - bbox.min.y) / 2, (bbox.max.z - bbox.min.z) / 2);
+
+                            //set up camera
+                            const scene = new THREE.Scene();
+                            //scene.background = new THREE.Color(0xffffff);
+                            scene.background = new THREE.Color(0x0);
+                            const camera = new THREE.PerspectiveCamera(75, renderer_width / renderer_height, 1, 10000);
+                            camera.position.set(cogx + radius * 1.2, cogy + radius * 1.2, cogz + radius * 1.2);
+                            camera.up = new THREE.Vector3(0, 0, 1);
+                            camera.lookAt(cogx, cogy, 0);
+
+                            scene.add(myObj);
+
+                            //ambient light
+                            const ambient_light = new THREE.AmbientLight(0x808080); // soft white light
+                            scene.add(ambient_light);
+
+                            //directional light
+                            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+                            directionalLight.position.set(1000, 0, 1000)
+                            scene.add(directionalLight);
+
+                            //control
+                            const controls = new OrbitControls(camera, renderer.domElement);
+                            controls.target.set(cogx, cogy, 0);
+                            //controls.update();
+
+                            //animation loop
+                            const animate = function () {
+                                requestAnimationFrame(animate);
+
+                                controls.update();
+
+                                renderer.render(scene, camera);
+                            };
+                            animate();
+
+                            result_div.style.display = "block";
+                        }
+                    }
+                    else {
+                        alert("Network error, please try again");
+                    }
+
+                    last_watchlist_edit_add_request = undefined;
+                    watchlist_edit_send_div.textContent = "Go!";
+                }
+            }
+
+            last_watchlist_edit_add_request.open("POST", "/upload_floorplan", true);
+            last_watchlist_edit_add_request.send(formData);
+        }
+
+
+        watchlist_edit_attach_div.setAttribute("onclick", 'hidden_file_input_div.click(); return false;')
+        watchlist_edit_send_div.setAttribute("onclick", 'sendEditWatchlistUpdate(); return false;')
+    </script>
+</body>
+
+</html>

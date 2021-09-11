@@ -922,8 +922,8 @@ def extract_wall_polygon(wall, wall_points, segmentation, seg_class):
                             down_right,
                             down_left])
         
-        polygon[:, 0] = np.clip(polygon[:, 0], 0, max_width)
-        polygon[:, 1] = np.clip(polygon[:, 1], 0, max_height)
+        polygon[:, 0] = np.clip(polygon[:, 0], 0, max_width-1)
+        polygon[:, 1] = np.clip(polygon[:, 1], 0, max_height-1)
 
         return wall_width, polygon
 
@@ -978,8 +978,8 @@ def extract_wall_polygon(wall, wall_points, segmentation, seg_class):
                             down_right,
                             down_left])
 
-        polygon[:, 0] = np.clip(polygon[:, 0], 0, max_width)
-        polygon[:, 1] = np.clip(polygon[:, 1], 0, max_height)
+        polygon[:, 0] = np.clip(polygon[:, 0], 0, max_width-1)
+        polygon[:, 1] = np.clip(polygon[:, 1], 0, max_height-1)
 
         return wall_width, polygon
 
