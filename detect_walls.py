@@ -1,6 +1,7 @@
 import trimesh.exchange.obj
 import trimesh
 from shapely.ops import transform as shapely_transform
+from shapely.affinity import scale
 from shapely import geometry
 from torchvision.transforms import ToTensor
 from PIL import Image
@@ -128,6 +129,8 @@ def parse_floorplan(img_path):
 
     pol_room_seg, pol_icon_seg = polygons_to_image(
         polygons, types, room_polygons, room_types, height, width)
+    pol_room_seg[pol_icon_seg==2]=0
+
     plt.figure(figsize=(7.5, 7.5))
     ax = plt.subplot(1, 1, 1)
     ax.axis('off')
@@ -153,6 +156,8 @@ def parse_floorplan(img_path):
     plt.savefig(icon_buf, format='png')
 
     yourList = []
+    openings=[geometry.Polygon(polygons[i]) for i,t in enumerate(types) if t['type']=='icon' and (t['class']==2)]
+    openings=geometry.MultiPolygon(openings)
 
     for i in range(len(types)):
         t = types[i]
@@ -161,24 +166,37 @@ def parse_floorplan(img_path):
             poly = geometry.Polygon(poly)
             if poly.area == 0:
                 continue
-            mesh = trimesh.creation.extrude_polygon(
-                shapely_transform(reflection(0), poly), 100)
-            yourList.append(mesh)
 
-    vertice_list = [mesh.vertices for mesh in yourList]
-    faces_list = [mesh.faces for mesh in yourList]
-    faces_offset = np.cumsum([v.shape[0] for v in vertice_list])
-    faces_offset = np.insert(faces_offset, 0, 0)[:-1]
+            final_polygons=[]
+            result=poly.difference(openings)
+            if isinstance(result, geometry.Polygon):
+                if result.area==0: continue
+                final_polygons.append(result)
+            elif isinstance(result, geometry.MultiPolygon):
+                for poly in result:
+                    if poly.area>0: final_polygons.append(poly)
+            for poly in final_polygons:
+                poly = scale(poly, xfact = -1, origin = (0, 0))
+                mesh = trimesh.creation.extrude_polygon(
+                    poly, 100)
+                yourList.append(mesh)
 
-    vertices = np.vstack(vertice_list)
-    faces = np.vstack(
-        [face + offset for face, offset in zip(faces_list, faces_offset)])
+    mesh_str=None
+    if len(yourList)>0:
+        vertice_list = [mesh.vertices for mesh in yourList]
+        faces_list = [mesh.faces for mesh in yourList]
+        faces_offset = np.cumsum([v.shape[0] for v in vertice_list])
+        faces_offset = np.insert(faces_offset, 0, 0)[:-1]
 
-    merged__meshes = trimesh.Trimesh(vertices, faces)
+        vertices = np.vstack(vertice_list)
+        faces = np.vstack(
+            [face + offset for face, offset in zip(faces_list, faces_offset)])
 
-    with io.BytesIO() as output:
-        # merged__meshes.export("aaa.obj")
-        mesh_str = trimesh.exchange.obj.export_obj(merged__meshes)
+        merged__meshes = trimesh.Trimesh(vertices, faces)
+
+        with io.BytesIO() as output:
+            # merged__meshes.export("aaa.obj")
+            mesh_str = trimesh.exchange.obj.export_obj(merged__meshes)
 
     return floorplan_buf, room_buf.getvalue(), icon_buf.getvalue(), mesh_str
 

@@ -31,7 +31,7 @@ def upload_floorplan():
         response['floorplan_png']=base64.b64encode(floorplan_buf).decode()
         response['rooms_png']=base64.b64encode(room_buf).decode()
         response['icons_png']=base64.b64encode(icon_buf).decode()
-        response['mesh_obj']=mesh_str
+        if mesh_str is not None: response['mesh_obj']=mesh_str
         
         return jsonify(response)
     except Exception as e:

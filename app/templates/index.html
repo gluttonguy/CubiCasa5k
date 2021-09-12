@@ -115,48 +115,51 @@
                             rooms_img.setAttribute("src", "data:image/png;base64, " + jsonResponse.rooms_png);
                             icons_img.setAttribute("src", "data:image/png;base64, " + jsonResponse.icons_png);
 
-                            var myObj = loader.parse(jsonResponse.mesh_obj);
-                            var bbox = new THREE.Box3().setFromObject(myObj);
-                            console.log("bbox: " + bbox);
-                            var cogx = (bbox.min.x + bbox.max.x) / 2;
-                            var cogy = (bbox.min.y + bbox.max.y) / 2;
-                            var cogz = (bbox.min.z + bbox.max.z) / 2;
-                            var radius = Math.max((bbox.max.x - bbox.min.x) / 2, (bbox.max.y - bbox.min.y) / 2, (bbox.max.z - bbox.min.z) / 2);
+                            if (jsonResponse.mesh_obj) {
+                                var myObj = loader.parse(jsonResponse.mesh_obj);
+                                var bbox = new THREE.Box3().setFromObject(myObj);
+                                console.log("bbox: " + bbox);
+                                var cogx = (bbox.min.x + bbox.max.x) / 2;
+                                var cogy = (bbox.min.y + bbox.max.y) / 2;
+                                var cogz = (bbox.min.z + bbox.max.z) / 2;
+                                var radius = Math.max((bbox.max.x - bbox.min.x) / 2, (bbox.max.y - bbox.min.y) / 2, (bbox.max.z - bbox.min.z) / 2);
 
-                            //set up camera
-                            const scene = new THREE.Scene();
-                            //scene.background = new THREE.Color(0xffffff);
-                            scene.background = new THREE.Color(0x0);
-                            const camera = new THREE.PerspectiveCamera(75, renderer_width / renderer_height, 1, 10000);
-                            camera.position.set(cogx + radius * 1.2, cogy + radius * 1.2, cogz + radius * 1.2);
-                            camera.up = new THREE.Vector3(0, 0, 1);
-                            camera.lookAt(cogx, cogy, 0);
+                                //set up camera
+                                const scene = new THREE.Scene();
+                                //scene.background = new THREE.Color(0xffffff);
+                                scene.background = new THREE.Color(0x0);
+                                const camera = new THREE.PerspectiveCamera(75, renderer_width / renderer_height, 1, 10000);
+                                camera.position.set(cogx + radius * 1.2, cogy + radius * 1.2, cogz + radius * 1.2);
+                                camera.up = new THREE.Vector3(0, 0, 1);
+                                camera.lookAt(cogx, cogy, 0);
 
-                            scene.add(myObj);
+                                scene.add(myObj);
 
-                            //ambient light
-                            const ambient_light = new THREE.AmbientLight(0x808080); // soft white light
-                            scene.add(ambient_light);
+                                //ambient light
+                                const ambient_light = new THREE.AmbientLight(0x808080); // soft white light
+                                scene.add(ambient_light);
 
-                            //directional light
-                            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-                            directionalLight.position.set(1000, 0, 1000)
-                            scene.add(directionalLight);
+                                //directional light
+                                const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+                                directionalLight.position.set(1000, 0, 1000)
+                                scene.add(directionalLight);
 
-                            //control
-                            const controls = new OrbitControls(camera, renderer.domElement);
-                            controls.target.set(cogx, cogy, 0);
-                            //controls.update();
+                                //control
+                                const controls = new OrbitControls(camera, renderer.domElement);
+                                controls.target.set(cogx, cogy, 0);
+                                //controls.update();
 
-                            //animation loop
-                            const animate = function () {
-                                requestAnimationFrame(animate);
+                                //animation loop
+                                const animate = function () {
+                                    requestAnimationFrame(animate);
 
-                                controls.update();
+                                    controls.update();
 
-                                renderer.render(scene, camera);
-                            };
-                            animate();
+                                    renderer.render(scene, camera);
+                                };
+                                animate();
+                            }
+
 
                             result_div.style.display = "block";
                         }
