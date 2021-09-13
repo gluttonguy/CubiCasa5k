@@ -67,6 +67,8 @@ def parse_floorplan(img_path):
 
     # unsqueeze to add artificial first dimension
     image = ToTensor()(image).unsqueeze(0)
+    if image.shape[1]==4:
+        image=image[:,0:3,:,:]
 
     n_rooms = 12
     n_icons = 11
