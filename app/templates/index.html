@@ -3,16 +3,16 @@
 
 <body>
 
-    <input hidden type="file" id="hidden_file_input">
-    <p>Upload a floor plan image file for auto analysis</p>
+    <input hidden type="file" id="hidden_file_input" accept=".png,.jpg,.jpeg">
+    <h1>Upload a floor plan image file for auto analysis</h1>
 
-    <button type="button" id="watchlist_edit_attach_div">Select File</button>
+    <button type="button" id="watchlist_edit_attach_div">Select Floor Plan File</button>
     <p id="watchlist_edit_attached_file_div">&nbsp;</p>
     <button type="button" id="watchlist_edit_send_div">Go!</button>
 
     <div style="display:none;" id="result_div">
         <div>
-            <p>Floor Plan</p>
+            <p>Floor Plan Image</p>
             <img id="floorplan_img" src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA
               AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
                   9TXL0Y4OHwAAAABJRU5ErkJggg==" />
@@ -20,13 +20,13 @@
 
         <div style="display: flex;">
             <div>
-                <p>Rooms and Walls</p>
+                <p>Detected Rooms and Walls</p>
                 <img id="rooms_img" src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA
                   AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
                       9TXL0Y4OHwAAAABJRU5ErkJggg==" />
             </div>
             <div>
-                <p>Spots of Interests</p>
+                <p>Detected Spots of Interest</p>
                 <img id="icons_img" src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA
                   AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
                       9TXL0Y4OHwAAAABJRU5ErkJggg==" />

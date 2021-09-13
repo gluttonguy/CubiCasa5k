@@ -3,6 +3,7 @@ channels:
   - pytorch
   - defaults
 dependencies:
+  - autopep8=1.5.7=pyhd3eb1b0_0
   - blas=1.0=mkl
   - ca-certificates=2021.7.5=haa95532_1
   - certifi=2021.5.30=py39haa95532_0
@@ -26,6 +27,7 @@ dependencies:
   - openssl=1.1.1l=h2bbff1b_0
   - pillow=8.3.1=py39h4fa10fc_0
   - pip=21.2.4=py38haa95532_0
+  - pycodestyle=2.7.0=pyhd3eb1b0_0
   - python=3.9.6=h6244533_1
   - pytorch=1.9.0=py3.9_cpu_0
   - setuptools=52.0.0=py39haa95532_0
@@ -33,6 +35,7 @@ dependencies:
   - six=1.16.0=pyhd3eb1b0_0
   - sqlite=3.36.0=h2bbff1b_0
   - tk=8.6.10=he774522_0
+  - toml=0.10.2=pyhd3eb1b0_0
   - torchaudio=0.9.0=py39
   - torchvision=0.10.0=py39_cpu
   - typing_extensions=3.10.0.0=pyh06a4308_0
@@ -45,11 +48,16 @@ dependencies:
   - zlib=1.2.11=h62dcd97_4
   - zstd=1.4.9=h19a0ad4_0
   - pip:
+    - click==8.0.1
     - colorama==0.4.4
     - cycler==0.10.0
+    - flask==2.0.1
     - imageio==2.9.0
+    - itsdangerous==2.0.1
+    - jinja2==3.0.1
     - kiwisolver==1.3.2
     - lmdb==1.2.1
+    - markupsafe==2.0.1
     - matplotlib==3.4.3
     - networkx==2.6.2
     - opencv-python==4.5.3.56
@@ -66,5 +74,6 @@ dependencies:
     - tqdm==4.62.2
     - triangle==20200424
     - trimesh==3.9.29
+    - werkzeug==2.0.1
 prefix: d:\miniconda3\envs\pytorch-cpu
 
