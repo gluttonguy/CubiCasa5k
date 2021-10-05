@@ -124,6 +124,7 @@
                                 var cogz = (bbox.min.z + bbox.max.z) / 2;
                                 var radius = Math.max((bbox.max.x - bbox.min.x) / 2, (bbox.max.y - bbox.min.y) / 2, (bbox.max.z - bbox.min.z) / 2);
 
+
                                 //set up camera
                                 const scene = new THREE.Scene();
                                 //scene.background = new THREE.Color(0xffffff);
@@ -134,6 +135,17 @@
                                 camera.lookAt(cogx, cogy, 0);
 
                                 scene.add(myObj);
+
+                                var floor_material = new THREE.MeshPhongMaterial( { color: 0x444444 } );
+                                for (const f of jsonResponse.floors) {
+                                    var floorObj = loader.parse(f[0]);
+                                    floorObj.traverse((obj) => {
+
+                                        if (obj instanceof THREE.Mesh) obj.material = floor_material;
+
+                                    });
+                                    scene.add(floorObj);
+                                }
 
                                 //ambient light
                                 const ambient_light = new THREE.AmbientLight(0x808080); // soft white light

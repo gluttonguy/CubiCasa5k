@@ -26,12 +26,13 @@ def upload_floorplan():
         file_size = len(file_bytes)
         file_name=uploaded_file.filename
 
-        floorplan_buf,room_buf,icon_buf,mesh_str=detect_walls.parse_floorplan(io.BytesIO(file_bytes))
+        floorplan_buf,room_buf,icon_buf,mesh_str,floors=detect_walls.parse_floorplan(io.BytesIO(file_bytes))
 
         response['floorplan_png']=base64.b64encode(floorplan_buf).decode()
         response['rooms_png']=base64.b64encode(room_buf).decode()
         response['icons_png']=base64.b64encode(icon_buf).decode()
         if mesh_str is not None: response['mesh_obj']=mesh_str
+        response['floors']=floors
         
         return jsonify(response)
     except Exception as e:
