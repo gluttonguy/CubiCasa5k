@@ -37,9 +37,7 @@ def upload_floorplan():
         return jsonify(response)
     except Exception as e:
         print(traceback.format_exc())
-        return jsonify({'error':'Invalid floorplan image file or processing error'})    
-    finally:
-        pass
+        return jsonify({'error':'Invalid floorplan image file or processing error'})
 
 
 

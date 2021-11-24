@@ -284,7 +284,7 @@ def parse_floorplan(img_path):
     image = image.resize(newsize)
 
     with io.BytesIO() as output:
-        image.save(output, format="PNG")
+        image.convert('RGB').save(output, format="PNG")
         floorplan_buf = output.getvalue()
 
     # unsqueeze to add artificial first dimension
