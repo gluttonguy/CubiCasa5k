@@ -11,11 +11,19 @@
     <button type="button" id="watchlist_edit_send_div">Go!</button>
 
     <div style="display:none;" id="result_div">
-        <div>
-            <p>Floor Plan Image</p>
-            <img id="floorplan_img" src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA
-              AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
-                  9TXL0Y4OHwAAAABJRU5ErkJggg==" />
+        <div style="display: flex;">
+            <div>
+                <p>Floor Plan Image</p>
+                <img id="floorplan_img" src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA
+                  AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
+                      9TXL0Y4OHwAAAABJRU5ErkJggg==" />
+            </div>
+            <div>
+                <p>Floor Plan Converted SVG</p>
+                <img id="floorplan_svg" src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA
+                AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
+                    9TXL0Y4OHwAAAABJRU5ErkJggg=="></img>
+            </div>
         </div>
 
         <div style="display: flex;">
@@ -51,6 +59,7 @@
         const floorplan_img = document.getElementById("floorplan_img");
         const rooms_img = document.getElementById("rooms_img");
         const icons_img = document.getElementById("icons_img");
+        const floorplan_svg_div = document.getElementById("floorplan_svg");
 
         var last_watchlist_edit_add_request = undefined;
 
@@ -114,6 +123,8 @@
                             floorplan_img.setAttribute("src", "data:image/png;base64, " + jsonResponse.floorplan_png);
                             rooms_img.setAttribute("src", "data:image/png;base64, " + jsonResponse.rooms_png);
                             icons_img.setAttribute("src", "data:image/png;base64, " + jsonResponse.icons_png);
+                            //floorplan_svg_div.innerHTML=jsonResponse.floorplan_svg;
+                            floorplan_svg.setAttribute("src", "data:image/svg+xml;base64, " + btoa(jsonResponse.floorplan_svg));
 
                             if (jsonResponse.mesh_obj) {
                                 var myObj = loader.parse(jsonResponse.mesh_obj);

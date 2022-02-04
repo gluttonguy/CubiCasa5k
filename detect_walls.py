@@ -10,6 +10,7 @@ from floortrans.post_prosessing import split_prediction, get_polygons, split_val
 import sys
 import io
 import math
+import svgwrite
 
 from skimage import transform
 import numpy as np
@@ -351,6 +352,21 @@ def parse_floorplan(img_path):
     #types=[types[x] for x in types_indices]
     #polygons=[polygons[x] for x in types_indices]
 
+    dwg = svgwrite.Drawing('test.svg', size=(str(newsize[0])+'px',str(newsize[1])+'px'), profile='tiny')
+    for i in range(len(polygons)):
+        pol=polygons[i]
+        t=types[i]
+        if t['type']!='wall': continue
+
+        pol=pol.tolist()
+        for j in range(len(pol)):
+            x=pol[j]
+            y=pol[(j+1)%len(pol)]
+            #x=[x[0].item(),x[1].item()]
+            #y=[y[0].item(),y[1].item()]
+            dwg.add(dwg.line(x, y, stroke=svgwrite.rgb(10, 10, 16, '%')))
+    #dwg.save()
+
     pol_room_seg, pol_icon_seg = polygons_to_image(
         polygons, types, room_polygons, room_types, height, width)
     pol_room_seg[pol_icon_seg==2]=0
@@ -432,7 +448,7 @@ def parse_floorplan(img_path):
             f_mesh_str = trimesh.exchange.obj.export_obj(mesh)
             floors.append([f_mesh_str,t['type']])
 
-    return floorplan_buf, room_buf.getvalue(), icon_buf.getvalue(), mesh_str, floors
+    return floorplan_buf, dwg.tostring(), room_buf.getvalue(), icon_buf.getvalue(), mesh_str, floors
 
 
 if __name__ == '__main__':
