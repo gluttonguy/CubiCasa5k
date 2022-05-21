@@ -24,6 +24,13 @@
                 AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO
                     9TXL0Y4OHwAAAABJRU5ErkJggg=="></img>
             </div>
+            <div>
+                <p>Detected Features</p>
+                <form > 
+                    <input type="checkbox" name="check" id="checkbox_balcony"
+                    onclick="return false;">Balcony<br>
+                </form>
+            </div>
         </div>
 
         <div style="display: flex;">
@@ -57,6 +64,7 @@
 
         const result_div = document.getElementById("result_div");
         const floorplan_img = document.getElementById("floorplan_img");
+        const checkbox_balcony = document.getElementById("checkbox_balcony");
         const rooms_img = document.getElementById("rooms_img");
         const icons_img = document.getElementById("icons_img");
         const floorplan_svg_div = document.getElementById("floorplan_svg");
@@ -121,6 +129,8 @@
                         }
                         else {
                             floorplan_img.setAttribute("src", "data:image/png;base64, " + jsonResponse.floorplan_png);
+                            if(jsonResponse.balcony) checkbox_balcony.checked=true;
+                            else checkbox_balcony.checked=false;
                             rooms_img.setAttribute("src", "data:image/png;base64, " + jsonResponse.rooms_png);
                             icons_img.setAttribute("src", "data:image/png;base64, " + jsonResponse.icons_png);
                             //floorplan_svg_div.innerHTML=jsonResponse.floorplan_svg;

@@ -9,6 +9,19 @@ import base64
 
 import detect_walls
 
+from PIL import Image
+import pytesseract
+from dotenv import load_dotenv
+import os
+from os.path import join, dirname
+
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+pytesseract.pytesseract.tesseract_cmd = os.environ.get('tesseract_cmd','C:/Program Files/Tesseract-OCR/tesseract.exe')
+#tessdata_dir_config = '--tessdata-dir "D:/Program Files/Tesseract-OCR/tessdata_best"'
+tessdata_dir_config = None
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -34,6 +47,18 @@ def upload_floorplan():
         response['icons_png']=base64.b64encode(icon_buf).decode()
         if mesh_str is not None: response['mesh_obj']=mesh_str
         response['floors']=floors
+
+        text = pytesseract.image_to_string(Image.open(io.BytesIO(file_bytes)),config=tessdata_dir_config).strip()
+        print('parsed text')
+        print(text)
+        specal_chars='\r\n!@#$%^&*()-_=+{[}]|\\:;"\'<,>.?/'
+        for c in specal_chars:
+            text=text.replace(c,' ')
+        words=text.split(' ')
+        for word in words:
+            word=word.lower()
+            if word=='balcony':
+                response['balcony']='y'
         
         return jsonify(response)
     except Exception as e:
